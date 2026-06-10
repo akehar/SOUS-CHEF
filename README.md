@@ -45,7 +45,17 @@ On a physical device, the app auto-targets your Metro host's IP for the backend;
 | Chat + recipe generation | `claude-opus-4-8` | Best culinary reasoning; adaptive thinking; JSON-schema-enforced recipes |
 | Chef's Eye vision + pantry scan | `claude-haiku-4-5` | ~1–2s verdicts at ~$0.002/frame — the live loop stays cheap and snappy |
 
-Both are env-swappable (`SOUS_CHAT_MODEL`, `SOUS_VISION_MODEL` in `server/.env`) — see the trade-off table in STRATEGY.md §3.
+**Gemini is wired in as an alternative vision provider** (the dual-vendor setup from STRATEGY.md §3): set `GEMINI_API_KEY` and `VISION_PROVIDER=gemini` in `server/.env` and Chef's Eye + pantry scans run on `gemini-2.5-flash` instead — chat and recipe generation stay on Claude. If only one provider's key is set, the server picks the vision provider automatically. All models are env-swappable (`SOUS_CHAT_MODEL`, `SOUS_VISION_MODEL`, `GEMINI_VISION_MODEL`).
+
+## Deploy on Render (one click)
+
+The repo ships a [`render.yaml`](./render.yaml) blueprint that deploys both halves:
+
+1. Render dashboard → **New → Blueprint** → select this repo/branch.
+2. When prompted, paste `ANTHROPIC_API_KEY` (and optionally `GEMINI_API_KEY`). Keys live only in Render's env vars — never in the repo or the app bundle.
+3. You get `sous-chef-ai.onrender.com` (the AI backend, with `/health`) and `sous-chef-web.onrender.com` (the web app). If Render had to rename the backend service, update `EXPO_PUBLIC_API_URL` on the static site and redeploy it.
+
+Note: Render's free tier sleeps the backend after idle — the first request after a nap takes ~30s. Bump to the Starter plan for an always-warm sous-chef.
 
 ## Project layout
 

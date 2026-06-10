@@ -1,0 +1,40 @@
+# Render blueprint — deploys the whole product in one click:
+#   1. sous-chef-ai   → Node web service (the AI proxy in server/)
+#   2. sous-chef-web  → static site (the Expo web build)
+#
+# Setup: Render dashboard → New → Blueprint → point at this repo.
+# You'll be prompted once for the secret env vars (sync: false below).
+# If Render renames a service (name already taken), update
+# EXPO_PUBLIC_API_URL on sous-chef-web to the actual backend URL.
+
+services:
+  - type: web
+    name: sous-chef-ai
+    runtime: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: SOUS_CHAT_MODEL
+        value: claude-opus-4-8
+      - key: SOUS_VISION_MODEL
+        value: claude-haiku-4-5
+      # Flip to "gemini" to run Chef's Eye on Gemini Flash instead of Haiku.
+      - key: VISION_PROVIDER
+        value: anthropic
+
+  - type: web
+    name: sous-chef-web
+    runtime: static
+    rootDir: .
+    buildCommand: npm install && npx expo export --platform web
+    staticPublishPath: dist
+    envVars:
+      - key: EXPO_PUBLIC_API_URL
+        value: https://sous-chef-ai.onrender.com

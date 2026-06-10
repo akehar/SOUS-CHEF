@@ -1,15 +1,38 @@
 import Anthropic from '@anthropic-ai/sdk';
 import cors from 'cors';
 import express from 'express';
+import { GEMINI_PANTRY_SCHEMA, GEMINI_VERDICT_SCHEMA, geminiVisionJSON } from './gemini.js';
 
 // SOUS-CHEF AI proxy. Keys live here, never in the app bundle.
-// Chat + recipe generation run on Opus for quality; the live vision loop runs
-// on Haiku by default so a frame check stays fast and costs ~$0.002.
+// Chat + recipe generation run on Claude (Opus). The live vision loop is
+// provider-switchable: Claude Haiku (default) or Gemini Flash — both keep a
+// frame check fast and at fractions of a cent.
 
-const client = new Anthropic();
 const CHAT_MODEL = process.env.SOUS_CHAT_MODEL ?? 'claude-opus-4-8';
 const VISION_MODEL = process.env.SOUS_VISION_MODEL ?? 'claude-haiku-4-5';
+const GEMINI_MODEL = process.env.GEMINI_VISION_MODEL ?? 'gemini-2.5-flash';
 const PORT = Number(process.env.PORT ?? 8787);
+
+// Vision provider: explicit VISION_PROVIDER wins; otherwise use whichever key exists.
+const VISION_PROVIDER: 'anthropic' | 'gemini' =
+  process.env.VISION_PROVIDER === 'gemini' ? 'gemini'
+  : process.env.VISION_PROVIDER === 'anthropic' ? 'anthropic'
+  : !process.env.ANTHROPIC_API_KEY && process.env.GEMINI_API_KEY ? 'gemini'
+  : 'anthropic';
+
+// Lazy so the server still boots (and /health responds) when only one
+// provider's key is configured.
+let anthropicClient: Anthropic | null = null;
+function anthropic(): Anthropic {
+  if (!anthropicClient) anthropicClient = new Anthropic();
+  return anthropicClient;
+}
+
+function geminiKey(): string {
+  const key = process.env.GEMINI_API_KEY;
+  if (!key) throw new Error('GEMINI_API_KEY is not set');
+  return key;
+}
 
 const app = express();
 app.use(cors());
@@ -24,7 +47,14 @@ Rules:
 - Keep chat replies tight: 2-5 short paragraphs max, no headers, kitchen-side tone.
 - When asked what to cook, propose 2-3 concrete ideas with time + protein count, then ask one sharp question to narrow it down.`;
 
-app.get('/health', (_req, res) => res.json({ ok: true, chat: CHAT_MODEL, vision: VISION_MODEL }));
+app.get('/health', (_req, res) =>
+  res.json({
+    ok: true,
+    chat: CHAT_MODEL,
+    visionProvider: VISION_PROVIDER,
+    vision: VISION_PROVIDER === 'gemini' ? GEMINI_MODEL : VISION_MODEL,
+  }),
+);
 
 // ---------- Streaming chat ----------
 
@@ -41,7 +71,7 @@ app.post('/api/chat', async (req, res) => {
   res.flushHeaders();
 
   try {
-    const stream = client.messages.stream({
+    const stream = anthropic().messages.stream({
       model: CHAT_MODEL,
       max_tokens: 2048,
       thinking: { type: 'adaptive' },
@@ -98,22 +128,35 @@ app.post('/api/vision', async (req, res) => {
     visualCue: string;
   };
 
+  const eyesSystem =
+    'You are SOUS-CHEF\'s eyes: an expert chef judging doneness from a single photo of a home cook\'s pan or board. Be precise and honest — undercooked is undercooked. Judge ONLY this cooking step. If the image does not clearly show food for this step, use status "unclear".';
+  const eyesPrompt = `Recipe: ${recipeTitle}\nCurrent step: ${stepTitle}\nInstruction: ${instruction}\nTarget visual: ${visualCue}\n\nLook at the photo. Is this step done correctly / ready to move on? What should the cook do right now?`;
+
   try {
-    const response = await client.messages.create({
+    if (VISION_PROVIDER === 'gemini') {
+      const verdict = await geminiVisionJSON({
+        apiKey: geminiKey(),
+        model: GEMINI_MODEL,
+        imageBase64: image,
+        prompt: eyesPrompt,
+        systemInstruction: eyesSystem,
+        schema: GEMINI_VERDICT_SCHEMA,
+      });
+      res.json(verdict);
+      return;
+    }
+
+    const response = await anthropic().messages.create({
       model: VISION_MODEL,
       max_tokens: 600,
-      system:
-        'You are SOUS-CHEF\'s eyes: an expert chef judging doneness from a single photo of a home cook\'s pan or board. Be precise and honest — undercooked is undercooked. Judge ONLY this cooking step. If the image does not clearly show food for this step, use status "unclear".',
+      system: eyesSystem,
       output_config: { format: { type: 'json_schema', schema: VERDICT_SCHEMA } },
       messages: [
         {
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: image } },
-            {
-              type: 'text',
-              text: `Recipe: ${recipeTitle}\nCurrent step: ${stepTitle}\nInstruction: ${instruction}\nTarget visual: ${visualCue}\n\nLook at the photo. Is this step done correctly / ready to move on? What should the cook do right now?`,
-            },
+            { type: 'text', text: eyesPrompt },
           ],
         },
       ],
@@ -221,7 +264,7 @@ app.post('/api/recipe', async (req, res) => {
   };
 
   try {
-    const stream = client.messages.stream({
+    const stream = anthropic().messages.stream({
       model: CHAT_MODEL,
       max_tokens: 8000,
       thinking: { type: 'adaptive' },
@@ -260,7 +303,7 @@ app.post('/api/substitute', async (req, res) => {
   };
 
   try {
-    const response = await client.messages.create({
+    const response = await anthropic().messages.create({
       model: CHAT_MODEL,
       max_tokens: 300,
       system: CHEF_PERSONA,
@@ -283,9 +326,24 @@ app.post('/api/substitute', async (req, res) => {
 
 app.post('/api/pantry-scan', async (req, res) => {
   const { image } = req.body as { image: string };
+  const scanPrompt =
+    'List every distinct food ingredient visible in this fridge/pantry photo. Short names only ("eggs", "cheddar", "scallions").';
 
   try {
-    const response = await client.messages.create({
+    if (VISION_PROVIDER === 'gemini') {
+      const result = await geminiVisionJSON<{ items: string[] }>({
+        apiKey: geminiKey(),
+        model: GEMINI_MODEL,
+        imageBase64: image,
+        prompt: scanPrompt,
+        systemInstruction: 'You identify food ingredients in kitchen photos.',
+        schema: GEMINI_PANTRY_SCHEMA,
+      });
+      res.json(result);
+      return;
+    }
+
+    const response = await anthropic().messages.create({
       model: VISION_MODEL,
       max_tokens: 500,
       output_config: {
@@ -304,7 +362,7 @@ app.post('/api/pantry-scan', async (req, res) => {
           role: 'user',
           content: [
             { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: image } },
-            { type: 'text', text: 'List every distinct food ingredient visible in this fridge/pantry photo. Short names only ("eggs", "cheddar", "scallions").' },
+            { type: 'text', text: scanPrompt },
           ],
         },
       ],
@@ -319,5 +377,7 @@ app.post('/api/pantry-scan', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`👨‍🍳 SOUS-CHEF AI server on http://localhost:${PORT}`);
-  console.log(`   chat/recipes: ${CHAT_MODEL} · vision: ${VISION_MODEL}`);
+  console.log(
+    `   chat/recipes: ${CHAT_MODEL} · vision: ${VISION_PROVIDER === 'gemini' ? `${GEMINI_MODEL} (Gemini)` : VISION_MODEL}`,
+  );
 });
