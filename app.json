@@ -1,0 +1,44 @@
+{
+  "expo": {
+    "name": "SOUS-CHEF",
+    "slug": "sous-chef",
+    "version": "1.0.0",
+    "scheme": "souschef",
+    "orientation": "portrait",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "platforms": ["ios", "android", "web"],
+    "splash": {
+      "backgroundColor": "#0E0F13"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.souschef.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "SOUS-CHEF uses the camera to watch your cooking and give you live feedback — like checking if your onions are caramelized.",
+        "NSMicrophoneUsageDescription": "SOUS-CHEF uses the microphone for hands-free voice commands while you cook."
+      }
+    },
+    "android": {
+      "package": "com.souschef.app",
+      "permissions": ["CAMERA", "RECORD_AUDIO"]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "SOUS-CHEF uses the camera to watch your cooking and give you live feedback.",
+          "microphonePermission": "SOUS-CHEF uses the microphone for hands-free voice commands."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
