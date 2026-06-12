@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import cors from 'cors';
 import express from 'express';
 import { GEMINI_PANTRY_SCHEMA, GEMINI_VERDICT_SCHEMA, geminiVisionJSON } from './gemini.js';
+import { geminiTTS } from './tts.js';
 
 // SOUS-CHEF AI proxy. Keys live here, never in the app bundle.
 // Chat + recipe generation run on Claude (Opus). The live vision loop is
@@ -11,6 +12,8 @@ import { GEMINI_PANTRY_SCHEMA, GEMINI_VERDICT_SCHEMA, geminiVisionJSON } from '.
 const CHAT_MODEL = process.env.SOUS_CHAT_MODEL ?? 'claude-opus-4-8';
 const VISION_MODEL = process.env.SOUS_VISION_MODEL ?? 'claude-haiku-4-5';
 const GEMINI_MODEL = process.env.GEMINI_VISION_MODEL ?? 'gemini-2.5-flash';
+const TTS_MODEL = process.env.GEMINI_TTS_MODEL ?? 'gemini-2.5-flash-preview-tts';
+const TTS_VOICE = process.env.GEMINI_TTS_VOICE ?? 'Kore';
 const PORT = Number(process.env.PORT ?? 8787);
 
 // Vision provider: explicit VISION_PROVIDER wins; otherwise use whichever key exists.
@@ -372,6 +375,35 @@ app.post('/api/pantry-scan', async (req, res) => {
   } catch (err) {
     console.error('pantry-scan error', err);
     res.status(500).json({ error: 'pantry scan failed' });
+  }
+});
+
+// ---------- Sous-chef voice (Gemini TTS) ----------
+
+app.post('/api/tts', async (req, res) => {
+  const { text } = req.body as { text: string };
+  if (!text?.trim()) {
+    res.status(400).json({ error: 'text required' });
+    return;
+  }
+  if (!process.env.GEMINI_API_KEY) {
+    // Client falls back to on-device speech when natural TTS is unavailable.
+    res.status(501).json({ error: 'GEMINI_API_KEY not configured' });
+    return;
+  }
+  try {
+    const wav = await geminiTTS({
+      apiKey: geminiKey(),
+      model: TTS_MODEL,
+      text: text.slice(0, 800),
+      voice: TTS_VOICE,
+    });
+    res.setHeader('Content-Type', 'audio/wav');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(wav);
+  } catch (err) {
+    console.error('tts error', err);
+    res.status(500).json({ error: 'tts failed' });
   }
 });
 

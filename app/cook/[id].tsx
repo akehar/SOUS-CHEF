@@ -4,7 +4,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import Animated, { FadeInDown, SlideInRight, SlideOutLeft } from 'react-native-reanimated';
+import { Image } from 'expo-image';
 import { getRecipe } from '../../src/data/recipes';
+import { getArt } from '../../src/data/recipeArt';
 import { checkCookingFrame } from '../../src/services/chef';
 import { speak, stopSpeaking } from '../../src/services/voice';
 import { useChat, useCookSession, usePreferences } from '../../src/store';
@@ -174,6 +176,12 @@ export default function CookMode() {
             {step.durationMin ? <Pill tone="gold">~{step.durationMin} min</Pill> : null}
           </View>
           <Text style={[type.title, { marginTop: spacing.sm }]}>{step.title}</Text>
+          {(() => {
+            const art = getArt(recipe.id)?.steps[step.id];
+            return art ? (
+              <Image source={art} style={styles.stepImage} contentFit="cover" transition={350} />
+            ) : null;
+          })()}
           <Text style={[type.body, { marginTop: spacing.sm, fontSize: 16.5, lineHeight: 26 }]}>
             {step.instruction}
           </Text>
@@ -305,6 +313,13 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.lg,
     ...shadow.card,
+  },
+  stepImage: {
+    width: '100%',
+    height: 190,
+    borderRadius: radius.md,
+    marginTop: spacing.sm,
+    backgroundColor: colors.bgElevated,
   },
   cueBox: {
     backgroundColor: colors.goldSoft,

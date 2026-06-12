@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { colors, fonts, radius, shadow, spacing, type } from '../theme';
+import { getArt } from '../data/recipeArt';
 import { Recipe } from '../types';
 import { PressableScale } from './motion';
 import { Pill, tap } from './ui';
@@ -43,6 +44,7 @@ function shadeUp(hex: string): string {
 
 export function RecipeCard({ recipe, wide }: { recipe: Recipe; wide?: boolean }) {
   const router = useRouter();
+  const cover = getArt(recipe.id)?.cover ?? (recipe.image ? { uri: recipe.image } : undefined);
   return (
     <PressableScale
       scaleTo={0.975}
@@ -53,8 +55,8 @@ export function RecipeCard({ recipe, wide }: { recipe: Recipe; wide?: boolean })
       style={StyleSheet.flatten([styles.card, wide ? { width: '100%' } : { width: 272 }])}
     >
       <View style={[styles.hero, wide && { height: 190 }]}>
-        {recipe.image ? (
-          <Image source={{ uri: recipe.image }} style={StyleSheet.absoluteFill} contentFit="cover" transition={400} />
+        {cover ? (
+          <Image source={cover} style={StyleSheet.absoluteFill} contentFit="cover" transition={400} />
         ) : (
           <PlateHero recipe={recipe} />
         )}

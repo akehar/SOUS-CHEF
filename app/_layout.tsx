@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
@@ -33,7 +33,7 @@ export default function RootLayout() {
     return <View style={{ flex: 1, backgroundColor: colors.bg }} />;
   }
 
-  return (
+  const nav = (
     <>
       <StatusBar style="dark" />
       <Stack
@@ -49,4 +49,28 @@ export default function RootLayout() {
       </Stack>
     </>
   );
+
+  // On desktop web, frame the app like a device instead of stretching
+  // edge-to-edge — the editorial canvas sits centered on deeper parchment.
+  if (Platform.OS === 'web') {
+    return (
+      <View style={{ flex: 1, backgroundColor: '#EBE4D6', alignItems: 'center' }}>
+        <View
+          style={{
+            flex: 1,
+            width: '100%',
+            maxWidth: 560,
+            backgroundColor: colors.bg,
+            borderLeftWidth: 1,
+            borderRightWidth: 1,
+            borderColor: '#DDD4C2',
+          }}
+        >
+          {nav}
+        </View>
+      </View>
+    );
+  }
+
+  return nav;
 }

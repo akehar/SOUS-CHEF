@@ -1,4 +1,5 @@
 import { Recipe } from '../types';
+import { EXTRA_RECIPES } from './recipes-extra';
 
 // Curated launch recipes. Every step carries a `visualCue` so the Chef's Eye
 // vision check knows what "done" looks like at that moment.
@@ -374,6 +375,8 @@ export const RECIPES: Recipe[] = [
     },
   },
 ];
+
+RECIPES.push(...EXTRA_RECIPES);
 
 export function getRecipe(id: string): Recipe | undefined {
   return RECIPES.find((r) => r.id === id);

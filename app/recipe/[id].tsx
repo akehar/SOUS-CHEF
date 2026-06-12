@@ -11,6 +11,7 @@ import Animated, {
   useSharedValue,
 } from 'react-native-reanimated';
 import { getRecipe } from '../../src/data/recipes';
+import { getArt } from '../../src/data/recipeArt';
 import { suggestSubstitute } from '../../src/services/chef';
 import { useCart, useChat, useCookSession, usePreferences } from '../../src/store';
 import { colors, fonts, radius, spacing, type } from '../../src/theme';
@@ -31,6 +32,7 @@ export default function RecipeDetail() {
   const [subFor, setSubFor] = useState<string | null>(null);
   const [subText, setSubText] = useState<string>('');
   const [added, setAdded] = useState(false);
+  const cover = recipe ? getArt(recipe.id)?.cover ?? (recipe.image ? { uri: recipe.image } : undefined) : undefined;
 
   // GSAP-scrub-style parallax: hero scales up when over-pulled, drifts and
   // fades as content scrolls over it.
@@ -75,8 +77,8 @@ export default function RecipeDetail() {
     <View style={styles.safe}>
       {/* Parallax hero */}
       <Animated.View style={[styles.hero, heroStyle]}>
-        {recipe.image ? (
-          <Image source={{ uri: recipe.image }} style={StyleSheet.absoluteFill} contentFit="cover" />
+        {cover ? (
+          <Image source={cover} style={StyleSheet.absoluteFill} contentFit="cover" transition={400} />
         ) : (
           <LinearGradient
             colors={[recipe.heroColor, colors.bg]}
@@ -87,11 +89,13 @@ export default function RecipeDetail() {
             <View style={styles.glowGold} />
           </LinearGradient>
         )}
-        <Animated.View style={[styles.plateWrap, plateStyle]}>
-          <View style={styles.plate}>
-            <Text style={{ fontSize: 76 }}>{recipe.emoji}</Text>
-          </View>
-        </Animated.View>
+        {!cover && (
+          <Animated.View style={[styles.plateWrap, plateStyle]}>
+            <View style={styles.plate}>
+              <Text style={{ fontSize: 76 }}>{recipe.emoji}</Text>
+            </View>
+          </Animated.View>
+        )}
         <LinearGradient colors={['transparent', colors.bg]} style={styles.heroFade} />
       </Animated.View>
 
