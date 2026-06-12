@@ -5,11 +5,11 @@
     "version": "1.0.0",
     "scheme": "souschef",
     "orientation": "portrait",
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "platforms": ["ios", "android", "web"],
     "splash": {
-      "backgroundColor": "#0E0F13"
+      "backgroundColor": "#FAF8F4"
     },
     "ios": {
       "supportsTablet": true,

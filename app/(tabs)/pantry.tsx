@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { openAmazonFresh, openInstacart, shareList } from '../../src/services/cart';
 import { useCart, usePantry } from '../../src/store';
-import { colors, radius, spacing, type } from '../../src/theme';
+import { colors, fonts, radius, spacing, type } from '../../src/theme';
 import { Card, GradientButton, SectionTitle, tap } from '../../src/components/ui';
 
 export default function PantryAndCart() {
@@ -94,7 +94,7 @@ export default function PantryAndCart() {
               returnKeyType="done"
             />
             <Pressable style={styles.addBtn} onPress={addPantryItem}>
-              <Text style={{ color: '#16110B', fontWeight: '800', fontSize: 20 }}>+</Text>
+              <Text style={{ color: '#FFFFFF', fontFamily: fonts.sansExtraBold, fontSize: 20 }}>+</Text>
             </Pressable>
           </View>
           {pantry.items.length > 0 && (
@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   scroll: { paddingHorizontal: spacing.md, paddingTop: spacing.md },
   cartRow: { flexDirection: 'row', alignItems: 'center', padding: 14 },
   rowBorder: { borderBottomWidth: 1, borderBottomColor: colors.border },
-  cartName: { color: colors.text, fontSize: 14.5, fontWeight: '600' },
+  cartName: { color: colors.text, fontSize: 14.5, fontFamily: fonts.sansSemiBold },
   strike: { textDecorationLine: 'line-through', color: colors.textMuted },
   inputRow: { flexDirection: 'row', gap: spacing.sm },
   input: {

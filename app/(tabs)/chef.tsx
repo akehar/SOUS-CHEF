@@ -15,7 +15,7 @@ import { useRouter } from 'expo-router';
 import { chatWithChef, generateRecipe } from '../../src/services/chef';
 import { speak } from '../../src/services/voice';
 import { useChat, usePantry, usePreferences } from '../../src/store';
-import { colors, radius, spacing, type } from '../../src/theme';
+import { colors, fonts, radius, spacing, type } from '../../src/theme';
 import { Chip, Pill, tap } from '../../src/components/ui';
 import { ChatMessage } from '../../src/types';
 
@@ -87,7 +87,7 @@ export default function ChefChat() {
     <View style={[styles.bubbleRow, item.role === 'user' && { justifyContent: 'flex-end' }]}>
       {item.role === 'chef' && <Text style={styles.avatar}>👨‍🍳</Text>}
       <View style={[styles.bubble, item.role === 'user' ? styles.userBubble : styles.chefBubble]}>
-        <Text style={[type.body, item.role === 'user' && { color: '#16110B' }]}>
+        <Text style={[type.body, item.role === 'user' && { color: '#FFFFFF' }]}>
           {item.text || (item.pending ? 'Thinking…' : '')}
         </Text>
         {item.recipe && (
@@ -139,7 +139,7 @@ export default function ChefChat() {
             <View style={{ marginTop: spacing.lg, width: '100%' }}>
               {SUGGESTIONS.map((s) => (
                 <Pressable key={s} style={styles.suggestion} onPress={() => send(s)}>
-                  <Text style={{ color: colors.flame, fontSize: 14, fontWeight: '600' }}>{s}</Text>
+                  <Text style={{ color: colors.terracotta, fontSize: 14, fontFamily: fonts.sansSemiBold }}>{s}</Text>
                 </Pressable>
               ))}
             </View>
@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     padding: 12,
     marginTop: 10,
   },
-  recipeTitle: { color: colors.text, fontWeight: '700', fontSize: 14.5 },
+  recipeTitle: { color: colors.text, fontFamily: fonts.sansBold, fontSize: 14.5 },
   composer: {
     padding: spacing.md,
     borderTopWidth: 1,

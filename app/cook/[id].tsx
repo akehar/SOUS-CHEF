@@ -3,12 +3,14 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import Animated, { FadeInDown, SlideInRight, SlideOutLeft } from 'react-native-reanimated';
 import { getRecipe } from '../../src/data/recipes';
 import { checkCookingFrame } from '../../src/services/chef';
 import { speak, stopSpeaking } from '../../src/services/voice';
 import { useChat, useCookSession, usePreferences } from '../../src/store';
-import { colors, radius, spacing, type } from '../../src/theme';
+import { colors, fonts, radius, shadow, spacing, type } from '../../src/theme';
 import { GradientButton, Pill, tap } from '../../src/components/ui';
+import { ProgressBar, Pulse } from '../../src/components/motion';
 import { VisionVerdict } from '../../src/types';
 
 const AUTO_CHECK_INTERVAL_MS = 30000;
@@ -139,45 +141,56 @@ export default function CookMode() {
       {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={pauseAndExit} hitSlop={10}>
-          <Text style={{ color: colors.textSecondary, fontSize: 14, fontWeight: '600' }}>⏸ Pause & exit</Text>
+          <Text style={{ color: colors.textSecondary, fontSize: 14, fontFamily: fonts.sansSemiBold }}>⏸ Pause & exit</Text>
         </Pressable>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-          <View style={styles.liveDot} />
-          <Text style={{ color: colors.live, fontSize: 12, fontWeight: '800', letterSpacing: 1 }}>LIVE</Text>
+          <Pulse><View style={styles.liveDot} /></Pulse>
+          <Text style={{ color: colors.live, fontSize: 12, fontFamily: fonts.sansExtraBold, letterSpacing: 1.4 }}>LIVE</Text>
         </View>
       </View>
 
       {/* Progress */}
-      <View style={styles.progressTrack}>
-        <View style={[styles.progressFill, { width: `${((stepIndex + 1) / recipe.steps.length) * 100}%` }]} />
+      <View style={{ paddingHorizontal: spacing.md }}>
+        <ProgressBar
+          progress={(stepIndex + 1) / recipe.steps.length}
+          color={colors.terracotta}
+          trackColor={colors.border}
+        />
       </View>
-      <Text style={[type.caption, { paddingHorizontal: spacing.md, marginTop: 6 }]}>
+      <Text style={[type.caption, { paddingHorizontal: spacing.md, marginTop: 8 }]}>
         {recipe.emoji} {recipe.title} · step {stepIndex + 1} of {recipe.steps.length}
       </Text>
 
       <ScrollView contentContainerStyle={{ padding: spacing.md }} showsVerticalScrollIndicator={false}>
-        {/* Step card */}
-        <View style={styles.stepCard}>
+        {/* Step card — slides like the web app's GSAP step carousel */}
+        <Animated.View
+          key={step.id}
+          entering={SlideInRight.duration(420).springify().damping(22).stiffness(220)}
+          exiting={SlideOutLeft.duration(260)}
+          style={styles.stepCard}
+        >
           <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
             {step.heat && step.heat !== 'off' && <Pill tone="flame">🔥 {step.heat} heat</Pill>}
-            {step.durationMin ? <Pill>~{step.durationMin} min</Pill> : null}
+            {step.durationMin ? <Pill tone="gold">~{step.durationMin} min</Pill> : null}
           </View>
           <Text style={[type.title, { marginTop: spacing.sm }]}>{step.title}</Text>
-          <Text style={[type.body, { marginTop: spacing.sm, fontSize: 16.5, lineHeight: 25 }]}>
+          <Text style={[type.body, { marginTop: spacing.sm, fontSize: 16.5, lineHeight: 26 }]}>
             {step.instruction}
           </Text>
           {step.visualCue && (
             <View style={styles.cueBox}>
-              <Text style={{ color: colors.butter, fontSize: 13, fontWeight: '700' }}>👁 WHAT DONE LOOKS LIKE</Text>
+              <Text style={{ color: colors.butter, fontSize: 11, fontFamily: fonts.sansExtraBold, letterSpacing: 1.6 }}>
+                👁 WHAT DONE LOOKS LIKE
+              </Text>
               <Text style={[type.bodySecondary, { marginTop: 4, fontSize: 14 }]}>{step.visualCue}</Text>
             </View>
           )}
           {step.chefTip && (
-            <Text style={[type.caption, { marginTop: spacing.sm, fontStyle: 'italic' }]}>
+            <Text style={[type.caption, { marginTop: spacing.sm, fontFamily: fonts.serifItalic, fontSize: 13.5, color: colors.textSecondary }]}>
               💡 {step.chefTip}
             </Text>
           )}
-        </View>
+        </Animated.View>
 
         {/* Timer */}
         {step.timerSec ? (
@@ -194,9 +207,9 @@ export default function CookMode() {
         {/* Chef's Eye */}
         <View style={styles.eyeCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Text style={[type.heading, { fontSize: 16 }]}>👁 Chef's Eye</Text>
+            <Text style={[type.heading, { fontSize: 17 }]}>👁 Chef's Eye</Text>
             <Pressable onPress={toggleCamera}>
-              <Text style={{ color: colors.flame, fontWeight: '700', fontSize: 13 }}>
+              <Text style={{ color: colors.terracotta, fontFamily: fonts.sansBold, fontSize: 13 }}>
                 {cameraOn ? 'Hide camera' : 'Open camera'}
               </Text>
             </Pressable>
@@ -211,7 +224,7 @@ export default function CookMode() {
                 <CameraView ref={cameraRef} style={styles.camera} facing="back" />
                 {checking && (
                   <View style={styles.checkingOverlay}>
-                    <Text style={{ color: colors.cream, fontWeight: '700' }}>👨‍🍳 Looking…</Text>
+                    <Text style={{ color: '#FFF', fontFamily: fonts.sansBold }}>👨‍🍳 Looking…</Text>
                   </View>
                 )}
               </View>
@@ -229,7 +242,7 @@ export default function CookMode() {
                   style={[styles.autoBtn, autoCheck && { backgroundColor: colors.herbSoft, borderColor: colors.herb }]}
                   onPress={() => { tap(); cook.setVisionAutoCheck(!autoCheck); }}
                 >
-                  <Text style={{ color: autoCheck ? colors.herb : colors.textMuted, fontWeight: '700', fontSize: 12 }}>
+                  <Text style={{ color: autoCheck ? colors.herb : colors.textMuted, fontFamily: fonts.sansExtraBold, fontSize: 11, textAlign: 'center' }}>
                     AUTO{'\n'}30s
                   </Text>
                 </Pressable>
@@ -238,13 +251,16 @@ export default function CookMode() {
           )}
 
           {verdict && (
-            <View style={[styles.verdict, { borderColor: verdictTone }]}>
-              <Text style={{ color: verdictTone, fontWeight: '800', fontSize: 14 }}>
+            <Animated.View
+              entering={FadeInDown.springify().damping(20).stiffness(300)}
+              style={[styles.verdict, { borderLeftColor: verdictTone }]}
+            >
+              <Text style={{ color: verdictTone, fontFamily: fonts.sansExtraBold, fontSize: 14 }}>
                 {verdict.status === 'perfect' ? '✓ ' : verdict.status === 'adjust' ? '⚠ ' : '… '}
                 {verdict.headline}
               </Text>
               <Text style={[type.bodySecondary, { marginTop: 4, fontSize: 13.5 }]}>{verdict.feedback}</Text>
-            </View>
+            </Animated.View>
           )}
         </View>
 
@@ -282,20 +298,19 @@ const styles = StyleSheet.create({
     paddingVertical: spacing.sm,
   },
   liveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.live },
-  progressTrack: { height: 4, backgroundColor: colors.border, marginHorizontal: spacing.md, borderRadius: 2 },
-  progressFill: { height: 4, backgroundColor: colors.flame, borderRadius: 2 },
   stepCard: {
     backgroundColor: colors.card,
     borderRadius: radius.lg,
     borderWidth: 1,
     borderColor: colors.border,
     padding: spacing.lg,
+    ...shadow.card,
   },
   cueBox: {
-    backgroundColor: colors.bgElevated,
+    backgroundColor: colors.goldSoft,
     borderRadius: radius.sm,
     borderLeftWidth: 3,
-    borderLeftColor: colors.butter,
+    borderLeftColor: colors.gold,
     padding: 12,
     marginTop: spacing.md,
   },
@@ -307,8 +322,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     paddingVertical: spacing.md,
     marginTop: spacing.md,
+    ...shadow.card,
   },
-  timerText: { color: colors.text, fontSize: 44, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  timerText: { color: colors.text, fontSize: 46, fontFamily: fonts.serifBlack, fontVariant: ['tabular-nums'] },
   eyeCard: {
     backgroundColor: colors.card,
     borderRadius: radius.md,
@@ -316,13 +332,14 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     padding: spacing.md,
     marginTop: spacing.md,
+    ...shadow.card,
   },
   cameraWrap: {
     height: 220,
     borderRadius: radius.md,
     overflow: 'hidden',
     marginTop: spacing.md,
-    backgroundColor: '#000',
+    backgroundColor: '#16110B',
   },
   camera: { flex: 1 },
   checkingOverlay: {
@@ -331,21 +348,21 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(20,12,6,0.45)',
     alignItems: 'center',
     justifyContent: 'center',
   },
   autoBtn: {
     width: 64,
     borderRadius: radius.full,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
-    backgroundColor: colors.bgElevated,
+    backgroundColor: colors.card,
     alignItems: 'center',
     justifyContent: 'center',
   },
   verdict: {
-    borderWidth: 1,
+    borderLeftWidth: 3,
     borderRadius: radius.sm,
     padding: 12,
     marginTop: spacing.md,
@@ -360,7 +377,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     padding: spacing.md,
     paddingBottom: spacing.lg,
-    backgroundColor: colors.bgElevated,
+    backgroundColor: colors.card,
     borderTopWidth: 1,
     borderTopColor: colors.border,
     alignItems: 'center',
@@ -369,8 +386,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.md,
     paddingVertical: 14,
     borderRadius: radius.full,
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
   },
-  navBtnText: { color: colors.textSecondary, fontWeight: '700' },
+  navBtnText: { color: colors.textSecondary, fontFamily: fonts.sansBold },
 });

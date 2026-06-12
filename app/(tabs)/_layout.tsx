@@ -1,10 +1,10 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { Tabs } from 'expo-router';
-import { colors } from '../../src/theme';
+import { colors, fonts } from '../../src/theme';
 
 function TabIcon({ glyph, focused }: { glyph: string; focused: boolean }) {
-  return <Text style={{ fontSize: 21, opacity: focused ? 1 : 0.45 }}>{glyph}</Text>;
+  return <Text style={{ fontSize: 21, opacity: focused ? 1 : 0.4 }}>{glyph}</Text>;
 }
 
 export default function TabLayout() {
@@ -13,14 +13,14 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.bgElevated,
+          backgroundColor: colors.card,
           borderTopColor: colors.border,
           height: 84,
           paddingTop: 8,
         },
-        tabBarActiveTintColor: colors.flame,
+        tabBarActiveTintColor: colors.terracotta,
         tabBarInactiveTintColor: colors.textMuted,
-        tabBarLabelStyle: { fontSize: 10.5, fontWeight: '700' },
+        tabBarLabelStyle: { fontSize: 10.5, fontFamily: fonts.sansBold, letterSpacing: 0.3 },
         sceneStyle: { backgroundColor: colors.bg },
       }}
     >

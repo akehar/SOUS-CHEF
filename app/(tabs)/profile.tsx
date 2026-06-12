@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Switch, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePreferences } from '../../src/store';
-import { colors, radius, spacing, type } from '../../src/theme';
+import { colors, fonts, radius, spacing, type } from '../../src/theme';
 import { Card, Chip, SectionTitle } from '../../src/components/ui';
 
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Keto', 'Paleo', 'Mediterranean', 'Halal', 'Kosher', 'Gluten-free', 'Dairy-free'];
@@ -55,7 +55,7 @@ export default function Profile() {
                 onPress={() => setPrefs({ householdSize: n })}
                 style={[styles.numBtn, prefs.householdSize === n && styles.numBtnActive]}
               >
-                <Text style={{ color: prefs.householdSize === n ? '#16110B' : colors.textSecondary, fontWeight: '700' }}>
+                <Text style={{ color: prefs.householdSize === n ? '#FFFFFF' : colors.textSecondary, fontFamily: fonts.sansBold }}>
                   {n}{n === 6 ? '+' : ''}
                 </Text>
               </Pressable>
@@ -106,7 +106,7 @@ export default function Profile() {
         <Card>
           <View style={styles.switchRow}>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: colors.text, fontWeight: '600', fontSize: 15 }}>Voice coaching</Text>
+              <Text style={{ color: colors.text, fontFamily: fonts.sansSemiBold, fontSize: 15 }}>Voice coaching</Text>
               <Text style={[type.caption, { marginTop: 2 }]}>
                 The sous-chef speaks feedback aloud while you cook
               </Text>
@@ -156,7 +156,7 @@ const styles = StyleSheet.create({
   macroInput: {
     color: colors.text,
     fontSize: 22,
-    fontWeight: '800',
+    fontFamily: fonts.sansExtraBold,
     borderBottomWidth: 2,
     borderBottomColor: colors.flame,
     paddingVertical: 4,

@@ -48,6 +48,7 @@ export interface Recipe {
   tagline: string;
   emoji: string;
   heroColor: string;
+  image?: string; // optional cover photo/render URL — card turns photo-forward when set
   cuisine: string;
   difficulty: 'Easy' | 'Intermediate' | 'Advanced';
   totalMin: number;

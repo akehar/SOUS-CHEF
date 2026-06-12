@@ -1,41 +1,59 @@
-// SOUS-CHEF design system — "Midnight Kitchen"
-// Deep charcoal canvas, copper-flame accents, fresh-herb greens.
+// SOUS-CHEF design system — "Warm Editorial"
+// Ported from the Culinary-Lens design language: warm cream canvas, charcoal
+// ink, brand gold + terracotta accents, serif display type over sans body.
 
 export const colors = {
-  // Canvas
-  bg: '#0E0F13',
-  bgElevated: '#16181F',
-  card: '#1C1F28',
-  cardPressed: '#232733',
-  border: '#2A2E3A',
+  // Canvas — warm cream/ivory
+  bg: '#FAF8F4',
+  bgElevated: '#F3EFE6',
+  card: '#FFFFFF',
+  cardPressed: '#FBF7EF',
+  border: '#EDE7DB',
 
   // Brand
-  flame: '#E8833A', // copper flame — primary accent
-  flameSoft: '#3A2A1C',
-  ember: '#C9542E',
-  herb: '#7BC47F', // fresh herb green — success / live
-  herbSoft: '#1E2E22',
-  butter: '#F2C94C', // warm highlight
-  wine: '#9B5DE5', // wine pairing accent
-  wineSoft: '#2A2238',
-  cream: '#F5EFE6',
+  gold: '#FBC02D', // hsl(45 100% 60%) — badges, highlights
+  goldSoft: '#FCF3D8',
+  terracotta: '#AD4329', // hsl(12 62% 42%) — primary CTAs, italic accents
+  terracottaHover: '#963A23',
+  terracottaSoft: '#F7E8E2',
+  flame: '#AD4329', // alias kept for existing call sites
+  flameSoft: '#F7E8E2',
+  ember: '#8F3520',
+  herb: '#3F8A4C',
+  herbSoft: '#E7F2E8',
+  butter: '#C8950B', // readable gold for text on cream
+  wine: '#7C3AAE',
+  wineSoft: '#F1E8F9',
+  cream: '#FAF8F4',
 
-  // Text
-  text: '#F2F0EC',
-  textSecondary: '#A8ACB8',
-  textMuted: '#6C7180',
+  // Ink
+  text: '#2D2D2D',
+  textSecondary: '#5E5B54',
+  textMuted: '#8E8A80',
 
   // Status
-  success: '#7BC47F',
-  warning: '#F2C94C',
-  danger: '#E5604C',
-  live: '#FF4D5E',
+  success: '#3F8A4C',
+  warning: '#C8950B',
+  danger: '#C0392B',
+  live: '#D63B2F',
 
   // Macros
-  protein: '#5DA9E9',
-  carbs: '#F2C94C',
-  fat: '#E8833A',
-  calories: '#E5604C',
+  protein: '#3E7CB1',
+  carbs: '#C8950B',
+  fat: '#AD4329',
+  calories: '#2D2D2D',
+} as const;
+
+// Font family names registered by @expo-google-fonts in app/_layout.tsx.
+export const fonts = {
+  serif: 'PlayfairDisplay_700Bold',
+  serifBlack: 'PlayfairDisplay_800ExtraBold',
+  serifItalic: 'PlayfairDisplay_500Medium_Italic',
+  sans: 'Inter_400Regular',
+  sansMedium: 'Inter_500Medium',
+  sansSemiBold: 'Inter_600SemiBold',
+  sansBold: 'Inter_700Bold',
+  sansExtraBold: 'Inter_800ExtraBold',
 } as const;
 
 export const spacing = {
@@ -56,27 +74,34 @@ export const radius = {
 } as const;
 
 export const type = {
-  hero: { fontSize: 34, fontWeight: '800' as const, letterSpacing: -0.8, color: colors.text },
-  title: { fontSize: 24, fontWeight: '700' as const, letterSpacing: -0.5, color: colors.text },
-  heading: { fontSize: 18, fontWeight: '700' as const, color: colors.text },
-  body: { fontSize: 15, fontWeight: '400' as const, color: colors.text, lineHeight: 22 },
-  bodySecondary: { fontSize: 15, fontWeight: '400' as const, color: colors.textSecondary, lineHeight: 22 },
-  caption: { fontSize: 12.5, fontWeight: '500' as const, color: colors.textMuted },
+  hero: { fontSize: 36, fontFamily: fonts.serifBlack, letterSpacing: -0.5, color: colors.text, lineHeight: 42 },
+  title: { fontSize: 26, fontFamily: fonts.serif, letterSpacing: -0.3, color: colors.text, lineHeight: 32 },
+  heading: { fontSize: 19, fontFamily: fonts.serif, color: colors.text },
+  body: { fontSize: 15, fontFamily: fonts.sans, color: colors.text, lineHeight: 23 },
+  bodySecondary: { fontSize: 15, fontFamily: fonts.sans, color: colors.textSecondary, lineHeight: 23 },
+  caption: { fontSize: 12.5, fontFamily: fonts.sansMedium, color: colors.textMuted },
   label: {
-    fontSize: 11.5,
-    fontWeight: '700' as const,
-    color: colors.textMuted,
-    letterSpacing: 1.2,
+    fontSize: 11,
+    fontFamily: fonts.sansBold,
+    color: colors.terracotta,
+    letterSpacing: 2.4,
     textTransform: 'uppercase' as const,
   },
 } as const;
 
 export const shadow = {
   card: {
-    shadowColor: '#000',
-    shadowOpacity: 0.35,
-    shadowRadius: 16,
-    shadowOffset: { width: 0, height: 8 },
-    elevation: 8,
+    shadowColor: '#3A2E1E',
+    shadowOpacity: 0.08,
+    shadowRadius: 18,
+    shadowOffset: { width: 0, height: 10 },
+    elevation: 5,
+  },
+  lifted: {
+    shadowColor: '#3A2E1E',
+    shadowOpacity: 0.16,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 16 },
+    elevation: 10,
   },
 } as const;
