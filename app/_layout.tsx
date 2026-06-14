@@ -5,8 +5,11 @@ import { StatusBar } from 'expo-status-bar';
 import { useFonts } from 'expo-font';
 import {
   PlayfairDisplay_500Medium_Italic,
+  PlayfairDisplay_600SemiBold,
   PlayfairDisplay_700Bold,
+  PlayfairDisplay_700Bold_Italic,
   PlayfairDisplay_800ExtraBold,
+  PlayfairDisplay_900Black,
 } from '@expo-google-fonts/playfair-display';
 import {
   Inter_400Regular,
@@ -19,8 +22,11 @@ import { colors } from '../src/theme';
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
+    PlayfairDisplay_600SemiBold,
     PlayfairDisplay_700Bold,
+    PlayfairDisplay_700Bold_Italic,
     PlayfairDisplay_800ExtraBold,
+    PlayfairDisplay_900Black,
     PlayfairDisplay_500Medium_Italic,
     Inter_400Regular,
     Inter_500Medium,

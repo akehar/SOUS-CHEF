@@ -26,10 +26,13 @@ export const colors = {
   wineSoft: '#F1E8F9',
   cream: '#FAF8F4',
 
-  // Ink
-  text: '#2D2D2D',
+  // Ink — high-contrast editorial near-black on warm ivory
+  ink: '#1A1714',
+  text: '#211E1A',
   textSecondary: '#5E5B54',
   textMuted: '#8E8A80',
+  hairline: '#1A1714', // 1px rules, used at low opacity
+  rule: 'rgba(26,23,20,0.16)',
 
   // Status
   success: '#3F8A4C',
@@ -47,8 +50,10 @@ export const colors = {
 // Font family names registered by @expo-google-fonts in app/_layout.tsx.
 export const fonts = {
   serif: 'PlayfairDisplay_700Bold',
-  serifBlack: 'PlayfairDisplay_800ExtraBold',
+  serifBlack: 'PlayfairDisplay_900Black',
+  serifSemi: 'PlayfairDisplay_600SemiBold',
   serifItalic: 'PlayfairDisplay_500Medium_Italic',
+  serifItalicBold: 'PlayfairDisplay_700Bold_Italic',
   sans: 'Inter_400Regular',
   sansMedium: 'Inter_500Medium',
   sansSemiBold: 'Inter_600SemiBold',
@@ -74,12 +79,24 @@ export const radius = {
 } as const;
 
 export const type = {
-  hero: { fontSize: 36, fontFamily: fonts.serifBlack, letterSpacing: -0.5, color: colors.text, lineHeight: 42 },
-  title: { fontSize: 26, fontFamily: fonts.serif, letterSpacing: -0.3, color: colors.text, lineHeight: 32 },
-  heading: { fontSize: 19, fontFamily: fonts.serif, color: colors.text },
-  body: { fontSize: 15, fontFamily: fonts.sans, color: colors.text, lineHeight: 23 },
-  bodySecondary: { fontSize: 15, fontFamily: fonts.sans, color: colors.textSecondary, lineHeight: 23 },
+  // Editorial display — high-contrast didone, tight leading
+  display: { fontSize: 46, fontFamily: fonts.serifBlack, letterSpacing: -1, color: colors.ink, lineHeight: 48 },
+  hero: { fontSize: 36, fontFamily: fonts.serifBlack, letterSpacing: -0.6, color: colors.ink, lineHeight: 40 },
+  title: { fontSize: 26, fontFamily: fonts.serif, letterSpacing: -0.3, color: colors.ink, lineHeight: 31 },
+  heading: { fontSize: 19, fontFamily: fonts.serif, color: colors.ink },
+  // Italic serif "deck" — the standfirst line under a headline
+  deck: { fontSize: 17, fontFamily: fonts.serifItalic, color: colors.textSecondary, lineHeight: 25 },
+  body: { fontSize: 15, fontFamily: fonts.sans, color: colors.text, lineHeight: 24 },
+  bodySecondary: { fontSize: 15, fontFamily: fonts.sans, color: colors.textSecondary, lineHeight: 24 },
   caption: { fontSize: 12.5, fontFamily: fonts.sansMedium, color: colors.textMuted },
+  // Tracked all-caps kicker / eyebrow
+  kicker: {
+    fontSize: 10.5,
+    fontFamily: fonts.sansBold,
+    color: colors.terracotta,
+    letterSpacing: 2.8,
+    textTransform: 'uppercase' as const,
+  },
   label: {
     fontSize: 11,
     fontFamily: fonts.sansBold,
@@ -87,6 +104,8 @@ export const type = {
     letterSpacing: 2.4,
     textTransform: 'uppercase' as const,
   },
+  // Big serif index numeral for contents lists
+  indexNum: { fontSize: 30, fontFamily: fonts.serifBlack, color: colors.ink, letterSpacing: -1 },
 } as const;
 
 export const shadow = {

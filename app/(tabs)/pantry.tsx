@@ -14,6 +14,7 @@ import { openAmazonFresh, openInstacart, shareList } from '../../src/services/ca
 import { useCart, usePantry } from '../../src/store';
 import { colors, fonts, radius, spacing, type } from '../../src/theme';
 import { Card, GradientButton, SectionTitle, tap } from '../../src/components/ui';
+import { Kicker } from '../../src/components/editorial';
 
 export default function PantryAndCart() {
   const pantry = usePantry();
@@ -32,8 +33,9 @@ export default function PantryAndCart() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={type.title}>Pantry & Cart</Text>
-        <Text style={[type.bodySecondary, { marginTop: 4 }]}>
+        <Kicker>The Larder</Kicker>
+        <Text style={[type.hero, { marginTop: 10 }]}>Pantry & Cart</Text>
+        <Text style={[type.deck, { marginTop: 6 }]}>
           What you have shapes what the chef suggests. What you need ships to your door.
         </Text>
 

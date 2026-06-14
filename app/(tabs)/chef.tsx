@@ -17,6 +17,7 @@ import { speak } from '../../src/services/voice';
 import { useChat, usePantry, usePreferences } from '../../src/store';
 import { colors, fonts, radius, spacing, type } from '../../src/theme';
 import { Chip, Pill, tap } from '../../src/components/ui';
+import { Kicker } from '../../src/components/editorial';
 import { ChatMessage } from '../../src/types';
 
 const SUGGESTIONS = [
@@ -114,8 +115,9 @@ export default function ChefChat() {
     <SafeAreaView style={styles.safe} edges={['top']}>
       <View style={styles.header}>
         <View>
-          <Text style={type.title}>Sous-Chef</Text>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 2 }}>
+          <Kicker>In Conversation With</Kicker>
+          <Text style={[type.hero, { marginTop: 8 }]}>The Sous-Chef</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
             <View style={styles.onlineDot} />
             <Text style={type.caption}>In your kitchen · knows your profile & pantry</Text>
           </View>

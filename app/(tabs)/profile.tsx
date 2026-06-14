@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { usePreferences } from '../../src/store';
 import { colors, fonts, radius, spacing, type } from '../../src/theme';
 import { Card, Chip, SectionTitle } from '../../src/components/ui';
+import { Kicker } from '../../src/components/editorial';
 
 const DIETS = ['Vegetarian', 'Vegan', 'Pescatarian', 'Keto', 'Paleo', 'Mediterranean', 'Halal', 'Kosher', 'Gluten-free', 'Dairy-free'];
 const ALLERGENS = ['Peanuts', 'Tree nuts', 'Dairy', 'Eggs', 'Gluten', 'Soy', 'Shellfish', 'Fish', 'Sesame'];
@@ -32,8 +33,9 @@ export default function Profile() {
   return (
     <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={type.title}>Your kitchen profile</Text>
-        <Text style={[type.bodySecondary, { marginTop: 4 }]}>
+        <Kicker>The Subscriber</Kicker>
+        <Text style={[type.hero, { marginTop: 10 }]}>Your Kitchen Profile</Text>
+        <Text style={[type.deck, { marginTop: 6 }]}>
           Everything here flows into every recipe, every chat, every substitution.
         </Text>
 
